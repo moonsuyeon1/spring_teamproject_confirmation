@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/base.html}">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+
+    <title>TripWithMe 페이지</title>
+
+    <link th:href="@{/css/common.css}" rel="stylesheet">
+    <link th:href="@{/css/swiper-min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/css/slick.css}" rel="stylesheet">
+    <script th:src="@{/js/html5.js}"></script>
+    <script th:src="@{/js/jquery-3.1.1.min.js}"></script>
+    <script th:src="@{/js/slick.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div style="display: flex;justify-content: center;">
+        <div style="width: 68%;">
+            <div class="blank" style="height: 50px"></div>
+            <h1 style="text-align: center;">게시판</h1>
+            <h4 style="text-align: center;color: #A4A4A4;">공구 유저를 위한 게시판입니다.</h4>
+            <div class="blank" style="height: 50px;"></div>
+            <div class="form3">
+                <a th:href="@{/item/new}">
+                    <button>글쓰기</button>
+                </a>
+                <div class="blank" style="height: 10px"></div>
+                <!-- 검색 폼 추가 -->
+                <div class="form2">
+                    <form th:action="@{/board}" method="get">
+                        <input type="text" name="searchKeyword" placeholder="검색어 입력" style="width: 30%;">
+                        <button type="submit">검색</button>
+                    </form>
+                </div>
+            </div>
+
+            <table class="item-table">
+                <thead>
+                <tr>
+                    <th style="width: 10%;">순번</th>
+                    <th style="width: 40%;">제목</th>
+                    <th style="width: 20%">글쓴이</th>
+                    <th style="width: 20%">작성시간</th>
+                    <th style="width: 10%;">댓글수</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="boardDto, iterStat : ${boardDtoPage.content}">
+                    <!-- 순번을 내림차순으로 표시 -->
+                    <td th:text="${boardDtoPage.totalElements - iterStat.index}"></td>
+                    <td style="text-align: left;">
+                        <a th:text="${boardDto.title}" th:href="@{/item/{id}(id=${boardDto.id})}"></a>
+                    </td>
+                    <td th:text="${boardDto.writer}"></td>
+                    <td th:text="${#temporals.format(boardDto.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td th:text="${#lists.size(boardDto.answerList)}"></td>
+                </tr>
+                </tbody>
+            </table>
+            <style>
+                table {
+                    width: 100%;
+                    border-collapse: collapse; /* 테이블 셀 사이의 간격 없애기 */
+                    table-layout: fixed; /* 셀 너비를 고정하여 내용에 관계없이 일정하게 유지 */
+                }
+
+                th, td {
+                    border: 1px solid #ddd; /* 셀 테두리 스타일 */
+                    padding: 8px; /* 셀 안쪽 여백 */
+                    white-space: nowrap; /* 텍스트가 줄 바꿈 없이 한 줄로 유지되게 함 */
+                    overflow: hidden; /* 넘치는 텍스트 숨기기 */
+                    text-overflow: ellipsis; /* 넘치는 텍스트를 "..."으로 표시 */
+                }
+
+                thead th {
+                    background-color: #f4f4f4; /* 헤더 배경색 */
+                    text-align: left; /* 헤더 텍스트 왼쪽 정렬 */
+                }
+
+                tbody td {
+                    text-align: left; /* 데이터 텍스트 왼쪽 정렬 */
+                }
+
+            </style>
+            <div class="pagination">
+                <!-- 페이지 번호를 수평으로 표시 -->
+                <ul>
+                    <!-- 이전 링크 -->
+                    <li th:if="${startPage > 1}">
+                        <a th:href="@{/board(page=${startPage - 1}, searchKeyword=${searchKeyword})}">Previous</a>
+                    </li>
+
+                    <!-- 페이지 번호 출력 -->
+                    <li th:each="page : ${#numbers.sequence(startPage, endPage)}">
+                        <a th:href="@{/board(page=${page - 1}, searchKeyword=${searchKeyword})}"
+                           th:text="${page}"
+                           th:class="${page == nowPage} ? 'current-page' : ''"></a>
+                    </li>
+
+                    <!-- 다음 링크 -->
+                    <li th:if="${endPage > 6}">
+                        <a th:href="@{/board(page=${endPage}, searchKeyword=${searchKeyword})}">Next</a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <style>
+        /* 전체 페이지 스타일링 */
+        body {
+            font-family: Arial, sans-serif; /* 기본 폰트 설정 */
+            margin: 0;
+            padding: 0;
+        }
+
+        /*.form3{*/
+        /*    margin-left: 96.5px;*/
+        /*}*/
+
+        form input[type="text"] {
+            padding: 5px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        form button {
+            padding: 5px 10px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 글쓰기 버튼 스타일링 */
+        button {
+            padding: 10px 20px;
+            font-size: 14px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* 페이지 네비게이션 스타일링 */
+        .pagination {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .pagination ul {
+            display: inline-flex;
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+
+        .pagination ul li {
+            margin: 0 5px;
+        }
+
+        .pagination ul li a {
+            display: block;
+            padding: 10px 15px;
+            font-size: 14px;
+            color: #007bff;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        .pagination ul li a:hover {
+            background-color: #e9ecef;
+        }
+
+        .pagination ul li .current-page {
+            color: red;
+            font-weight: bold;
+            border: 1px solid #007bff;
+            background-color: #f8f9fa;
+        }
+
+        /* 페이지 정보 스타일링 */
+        .page-info {
+            text-align: center;
+            margin: 20px;
+            font-size: 14px;
+        }
+    </style>
+    <style>
+        /* General table styling */
+        .item-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .item-table th,
+        .item-table td {
+            text-align: center; /* Center-align text in all table cells */
+            padding: 10px;
+            border-top: 1px solid #ddd; /* 가로줄 상단 */
+            border-bottom: 1px solid #ddd; /* 가로줄 하단 */
+        }
+
+        .item-table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+            border-top: 2px solid #ddd; /* 헤더의 상단 가로줄을 두껍게 */
+        }
+
+        .item-table td a {
+            color: #1e88e5;
+            text-decoration: none;
+        }
+
+        .item-table td a:hover {
+            text-decoration: underline;
+        }
+
+        /* Remove left and right borders */
+        .item-table th:first-child,
+        .item-table td:first-child {
+            border-left: none;
+        }
+
+        .item-table th:last-child,
+        .item-table td:last-child {
+            border-right: none;
+        }
+
+
+    </style>
+
+</div>
+</body>
+</html>

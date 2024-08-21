@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/base.html}">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+
+    <title>TripWithMe 페이지</title>
+
+    <link th:href="@{/css/common.css}" rel="stylesheet">
+    <link th:href="@{/css/swiper-min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/css/slick.css}" rel="stylesheet">
+    <script th:src="@{/js/html5.js}"></script>
+    <script th:src="@{/js/jquery-3.1.1.min.js}"></script>
+    <script th:src="@{/js/slick.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+</head>
+
+<body>
+<div layout:fragment="content">
+
+    <div style="display: flex;justify-content: center">
+        <div style="width: 68%;">
+
+        <div class="blank" style="height: 50px"></div>
+            <a class="view-all-link" th:href="@{/board}">
+                <button class="view-all-button">전체보기</button>
+            </a>
+            <div class="blank" style="height: 20px"></div>
+
+            <div class="item-info">
+                <div>
+                    <div>
+                        제목: <span class="item-name" th:text="${boardDto.title}"></span>
+                    </div>
+                    <div>
+                        글쓴이: <span th:text="${boardDto.writer}"></span>
+                    </div>
+                    <div>
+                        내용: <span th:text="${boardDto.boardContent}"></span>
+                    </div>
+                    <div>
+                        작성시간: <span th:text="${#temporals.format(boardDto.createDate, 'yyyy-MM-dd HH:mm')}"></span>
+                    </div>
+                    <div th:if="${boardDto.modifyDate != null}">
+                        수정날짜: <span th:text="${#temporals.format(boardDto.modifyDate, 'yyyy-MM-dd HH:mm')}"></span>
+                    </div>
+
+                </div>
+
+                <!-- Display image if filename exists -->
+                <div class="item-file" th:if="${boardDto.filename != null}">
+                    첨부 파일:
+                    <a class="file-link" th:href="@{/files/{filename}(filename=${boardDto.filename})}" th:text="${boardDto.filename}"></a>
+                    <br/>
+                    <img class="file-image" th:src="@{/files/{filename}(filename=${boardDto.filename})}" />
+                </div>
+
+                <div>
+                    <div class="blank" style="height: 20px"></div>
+                    <a class="action-link edit-link" th:href="@{/item/{id}/edit(id=${boardDto.id})}">
+                        <button class="action-button edit-button">수정</button>
+                    </a>
+                    <a class="action-link delete-link" th:href="@{/item/{id}/delete(id=${boardDto.id})}" onclick="return confirm('정말로 삭제하시겠습니까?');">
+                        <button class="action-button delete-button">삭제</button>
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- Comments Section -->
+            <h5 class="comments-count" th:text="|${#lists.size(boardDto.answerList)}개의 답변이 있습니다.|"></h5>
+            <div class="comments-list">
+                <ul>
+                    <li class="comment-item" th:each="comment : ${boardDto.answerList}">
+                        <span class="comment-content" th:text="${comment.content2}"></span>
+                        <div class="comment-date" th:if="${comment.createDate != null}">
+                            작성 날짜: <span th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></span>
+                        </div>
+                        <div class="comment-modify-date" th:if="${comment.modifyDate != null}">
+                            수정 날짜: <span th:text="${#temporals.format(comment.modifyDate, 'yyyy-MM-dd HH:mm')}"></span>
+                        </div>
+                        <a class="comment-edit-link" th:href="@{/comment/edit/{commentId}(commentId=${comment.id})}">댓글수정</a>
+                        <a class="comment-delete-link" th:href="@{/comment/delete/{commentId}(commentId=${comment.id})}" onclick="return confirm('정말로 삭제하시겠습니까?');">댓글삭제</a>
+                    </li>
+                </ul>
+            </div>
+
+            <form class="comment-form" th:action="@{|/comment/create/${boardDto.id}|}" method="post">
+                <textarea name="content2" id="content2" rows="15" ></textarea>
+                <input type="submit" value="답변등록">
+            </form>
+
+
+        </div>
+    </div>
+
+    <style>
+        /* Style for view-all link */
+        .view-all-link {
+            text-decoration: none; /* Remove underline from links */
+        }
+
+        .view-all-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            cursor: pointer;
+            outline: none; /* Remove default outline */
+            background-color: #2196f3; /* Blue background */
+            color: white;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .view-all-button:hover {
+            background-color: #1976d2; /* Darker blue on hover */
+        }
+
+        .view-all-button:focus {
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2); /* Add focus ring */
+        }
+
+    </style>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .item-info, .item-description, .item-create-date, .item-modify-date, .item-price, .item-file {
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .item-info {
+            background-color: #f9f9f9;
+        }
+
+        .item-file {
+            background-color: white;
+            text-align: center;
+        }
+
+        /* Text Styles */
+        .item-info .item-name, .item-description span, .item-create-date span, .item-modify-date span, .item-price span {
+            font-weight: bold;
+        }
+
+        .item-file .file-link {
+            color: #1e88e5;
+            text-decoration: none;
+        }
+
+        .item-file .file-link:hover {
+            text-decoration: underline;
+        }
+
+        .item-file .file-image {
+            margin-top: 10px;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+    </style>
+    <style>
+        /* Comments Section Styles */
+        .comments-count {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .comments-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .comment-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .comment-content {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .comment-date, .comment-modify-date {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .comment-edit-link, .comment-delete-link {
+            display: inline-block;
+            margin-right: 10px;
+            color: #1e88e5;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .comment-edit-link:hover, .comment-delete-link:hover {
+            text-decoration: underline;
+        }
+
+        .comment-form {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .comment-form input[type="submit"] {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #1e88e5;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .comment-form input[type="submit"]:hover {
+            background-color: #1565c0;
+        }
+
+    </style>
+    <style>
+        /* Style for action links */
+        .action-link {
+            text-decoration: none; /* Remove underline from links */
+        }
+
+        .action-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            cursor: pointer;
+            outline: none; /* Remove default outline */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .edit-button {
+            background-color: #4caf50; /* Green background for edit */
+            color: white;
+        }
+
+        .edit-button:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+
+        .delete-button {
+            background-color: #f44336; /* Red background for delete */
+            color: white;
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f; /* Darker red on hover */
+        }
+
+        /* Optional: Add focus styles for better accessibility */
+        .edit-button:focus, .delete-button:focus {
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+        }
+
+    </style>
+</div>
+</body>
+
+</html>

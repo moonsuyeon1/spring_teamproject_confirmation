@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/base.html}">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+
+    <title>TripWithMe 페이지</title>
+
+    <link th:href="@{/css/common.css}" rel="stylesheet">
+    <link th:href="@{/css/swiper-min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/css/slick.css}" rel="stylesheet">
+    <script th:src="@{/js/html5.js}"></script>
+    <script th:src="@{/js/jquery-3.1.1.min.js}"></script>
+    <script th:src="@{/js/slick.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <style>
+        /* 전체 페이지 스타일링 */
+        body {
+            font-family: Arial, sans-serif; /* 기본 폰트 설정 */
+            margin: 0;
+            padding: 0;
+        }
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-group input[type="file"] {
+            margin-top: 10px;
+        }
+
+        .submit-button {
+            background-color: #5cb85c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            background-color: #4cae4c;
+        }
+
+        .image-preview {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .image-preview:hover {
+            transform: scale(1.05);
+        }
+    </style>
+    <div style="display: flex;justify-content: center">
+    <div style="width: 68%;">
+    <div class="blank" style="height: 50px"></div>
+    <h1 style="text-align: center">게시판</h1>
+    <h4 style="text-align: center;color: #A4A4A4;">글을 작성하는 공간입니다</h4>
+    <div class="blank" style="height: 50px"></div>
+    <form class="form-container" action="#" th:action="@{/item}" th:object="${boardDto}" method="post" enctype="multipart/form-data">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <div class="form-group">
+            <label for="title">제목:</label>
+            <input type="text" id="title" th:field="*{title}" required/>
+        </div>
+
+        <div class="form-group">
+            <label for="writer">글쓴이:</label>
+            <input type="text" id="writer" th:field="*{writer}" required/>
+        </div>
+
+        <div class="form-group">
+            <label for="boardContent">내용:</label>
+            <input style="height: 500px" type="text" id="boardContent" th:field="*{boardContent}" required/>
+        </div>
+
+        <div class="form-group">
+            <label for="fileInput">첨부 파일:</label>
+            <input type="file" name="file" id="fileInput" class="file-input" onchange="previewImage()" />
+            <img id="imagePreview" class="image-preview" alt="Image Preview" />
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="submit-button">글쓰기</button>
+        </div>
+    </form>
+    </div>
+    </div>
+    <script>
+        function previewImage() {
+            const fileInput = document.getElementById('fileInput');
+            const imagePreview = document.getElementById('imagePreview');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        }
+    </script>
+</div>
+</body>
+
+</html>
